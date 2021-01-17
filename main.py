@@ -11,49 +11,51 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Intersection traffic simulator")
 
 #Load images
-CAR_L = pygame.image.load(os.path.join("assets", "car_left.jpg"))
-CAR_R = pygame.image.load(os.path.join("assets", "car_right.jpg"))
-CAR_U = pygame.image.load(os.path.join("assets", "car_up.jpg"))
-CAR_D = pygame.image.load(os.path.join("assets", "car_down.jpg"))
+CAR_L = pygame.transform.scale(pygame.image.load(os.path.join("assets", "car_left.png")), (150, 60))
+CAR_R = pygame.transform.scale(pygame.image.load(os.path.join("assets", "car_right.png")), (150, 60))
+CAR_U = pygame.transform.scale(pygame.image.load(os.path.join("assets", "car_up.png")), (60, 150))
+CAR_D = pygame.transform.scale(pygame.image.load(os.path.join("assets", "car_down.png")), (60, 150))
 BG = pygame.image.load(os.path.join("assets", "intersection.jpg"))
 
 #Define/generate probabilities
-prob_L = 30
-prob_R = 30
-prob_U = 20
-prob_D = 20
+prob_L = 50
+prob_R = 20
+prob_U = 25
+prob_D = 5
 
 class Car:
-    CARS_MAP = {
-        "L": (CAR_L),
-        "R": (CAR_R),
-        "U": (CAR_U),
-        "D": (CAR_D),
-    }
     def __init__(self, orientation):
         self.orientation = orientation
-        self.car_img = self.CARS_MAP[orientation]
         if (self.orientation == "L"):
             self.x = 10
             self.y = 345
+            self.car_img = CAR_L
         elif (self.orientation == "R"):
             self.x = (800 - CAR_D.get_width() - 10)
-            self.y = 345
+            self.y = 240
+            self.car_img = CAR_R
         elif (self.orientation == "U"):
-            self.x = 450
+            self.x = 320
             self.y = 10
+            self.car_img = CAR_U
         elif (self.orientation == "D"):
-            self.x = 450
+            self.x = 430
             self.y = (630 - CAR_D.get_height() - 10)
+            self.car_img = CAR_D
+
 
     def draw(self, window):
         window.blit(self.car_img, (self.x, self.y))
 
     def move(self, vel):
-        self.x += vel
-
-#class Car_L(Car):
-
+        if (self.orientation == "L"):
+            self.x += vel
+        elif (self.orientation == "R"):
+            self.x -= vel
+        elif (self.orientation == "U"):
+            self.y += vel
+        elif (self.orientation == "D"):
+            self.y -= vel
 
 def main():
     run = True
@@ -75,11 +77,14 @@ def main():
                 if history[i] == "L":
                     L += 1
                 elif history[i] == "R":
-                    R += R
+                    R += 1
                 elif history[i] == "U":
-                    U += U
+                    U += 1
                 elif history[i] == "D":
-                    D += D
+                    D += 1
+                print("i=", i)
+            #print(history)
+            print("Orginal L: ", L, "R: ", R, "U: ", U, "D: ", D, "len: ", len(history))
             if (L==0):
                 L=0
             else:
@@ -96,16 +101,17 @@ def main():
                 D=0
             else:
                 D = D / len(history)
+
         return L, R, U, D
 
 
     def draw_window():
         WIN.blit(BG, (0, 0))    #Draw background
         #draw text
-        true_probL_label = main_font.render(f"Prob L: {prob_L}", 1, (0, 0, 0))
-        true_probR_label = main_font.render(f"Prob R: {prob_R}", 1, (0, 0, 0))
-        true_probU_label = main_font.render(f"Prob U: {prob_U}", 1, (0, 0, 0))
-        true_probD_label = main_font.render(f"Prob D: {prob_D}", 1, (0, 0, 0))
+        true_probL_label = main_font.render(f"Prob L: {prob_L*0.01}", 1, (0, 0, 0))
+        true_probR_label = main_font.render(f"Prob R: {prob_R*0.01}", 1, (0, 0, 0))
+        true_probU_label = main_font.render(f"Prob U: {prob_U*0.01}", 1, (0, 0, 0))
+        true_probD_label = main_font.render(f"Prob D: {prob_D*0.01}", 1, (0, 0, 0))
         #calc_val_label
 
         WIN.blit(true_probL_label, (10, 10))
@@ -115,10 +121,11 @@ def main():
         #WIN.blit(true_val_label, (WIDTH - level_label.get_widht() - 10, 10))
 
         L, R, U, D = calc_probab()
-        calc_probL_label = main_font.render(f"Prob L: {L}", 1, (0, 0, 0))
-        calc_probR_label = main_font.render(f"Prob R: {R}", 1, (0, 0, 0))
-        calc_probU_label = main_font.render(f"Prob U: {U}", 1, (0, 0, 0))
-        calc_probD_label = main_font.render(f"Prob D: {D}", 1, (0, 0, 0))
+        print("Returned L: ", L, "R: ",R,"U: ", U, "D: ", D)
+        calc_probL_label = main_font.render(f"Prob L: {round(L, 2)}", 1, (0, 0, 0))
+        calc_probR_label = main_font.render(f"Prob R: {round(R, 2)}", 1, (0, 0, 0))
+        calc_probU_label = main_font.render(f"Prob U: {round(U, 2)}", 1, (0, 0, 0))
+        calc_probD_label = main_font.render(f"Prob D: {round(D, 2)}", 1, (0, 0, 0))
 
         WIN.blit(calc_probL_label, (WIDTH - calc_probL_label.get_width() - 10, 10))
         WIN.blit(calc_probR_label, (WIDTH - calc_probR_label.get_width() - 10, true_probR_label.get_height() + 20))
@@ -142,14 +149,16 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
 
-        if (count == 400):
-            # to delete
-            car = Car("L")
+        if (count%400 == 0):
+            prob = ["L"]*prob_L + ["R"]*prob_R + ["U"]*prob_U + ["D"]*prob_D
+            x = random.choice(prob)
+            #print("Choice: ",x)
+            car = Car(x)
             cars.append(car)
-            history.append("L")
-            count = 0
+            history.append(x)
 
         for car in cars[:]:
+            #print("Orientation: ",car.orientation)
             car.move(vel)
             count += 1
 
