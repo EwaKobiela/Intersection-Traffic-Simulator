@@ -1,0 +1,40 @@
+C:\\p\\positive\png1.PNG 1 314 223 66 159
+C:\\p\\positive\png10.PNG 3 11 345 156 63 414 342 156 63 318 462 65 158
+C:\\p\\positive\png11.PNG 2 330 339 156 64 427 41 66 155
+C:\\p\\positive\png12.PNG 2 317 60 69 161 462 340 161 64
+C:\\p\\positive\png13.PNG 2 171 342 157 61 319 372 66 156
+C:\\p\\positive\png14.PNG 3 232 345 156 64 630 342 157 68 602 240 161 63
+C:\\p\\positive\png15.PNG 2 318 262 64 157 493 237 154 64
+C:\\p\\positive\png16.PNG 2 318 278 62 160 480 342 156 65
+C:\\p\\positive\png17.PNG 2 310 344 160 64 514 345 156 64
+C:\\p\\positive\png18.PNG 2 115 346 158 63 319 143 63 156
+C:\\p\\positive\png19.PNG 2 317 290 64 158 89 342 161 68
+C:\\p\\positive\png2.PNG 2 144 348 161 63 345 347 158 71
+C:\\p\\positive\png20.PNG 2 170 342 157 67 143 237 158 65
+C:\\p\\positive\png21.PNG 2 317 342 64 158 540 341 161 65
+C:\\p\\positive\png22.PNG 4 274 342 157 68 469 341 157 65 636 239 158 63 317 189 61 155
+C:\\p\\positive\png23.PNG 2 301 343 159 66 230 241 154 61
+C:\\p\\positive\png24.PNG 0
+C:\\p\\positive\png25.PNG 4 71 344 151 65 314 472 68 155 564 341 161 69 314 30 66 158
+C:\\p\\positive\png26.PNG 2 146 341 163 64 314 346 67 161
+C:\\p\\positive\png27.PNG 2 81 338 159 68 445 236 158 65
+C:\\p\\positive\png28.PNG 2 70 344 161 67 268 345 162 63
+C:\\p\\positive\png29.PNG 2 422 393 66 156 254 235 155 63
+C:\\p\\positive\png3.PNG 1 387 343 155 65
+C:\\p\\positive\png30.PNG 2 165 239 153 59 345 238 153 62
+C:\\p\\positive\png31.PNG 2 283 229 156 64 426 425 65 158
+C:\\p\\positive\png32.PNG 4 319 359 65 163 428 394 65 156 318 162 64 157 31 343 157 64
+C:\\p\\positive\png33.PNG 2 314 402 68 159 422 275 70 158
+C:\\p\\positive\png34.PNG 3 13 343 156 62 321 236 161 65 425 41 70 157
+C:\\p\\positive\png35.PNG 3 236 342 158 63 318 131 62 158 519 234 159 67
+C:\\p\\positive\png36.PNG 1 428 323 61 156
+C:\\p\\positive\png37.PNG 2 318 308 63 159 510 341 159 65
+C:\\p\\positive\png38.PNG 3 240 339 157 67 98 235 156 68 545 236 159 64
+C:\\p\\positive\png39.PNG 2 424 194 63 160 315 72 68 160
+C:\\p\\positive\png4.PNG 2 339 342 158 64 596 235 161 67
+C:\\p\\positive\png40.PNG 2 494 339 153 70 437 237 158 65
+C:\\p\\positive\png5.PNG 2 219 345 162 62 320 17 66 161
+C:\\p\\positive\png6.PNG 2 210 346 156 60 325 238 156 65
+C:\\p\\positive\png7.PNG 2 309 341 155 67 110 342 154 63
+C:\\p\\positive\png8.PNG 2 357 342 156 64 317 155 67 158
+C:\\p\\positive\png9.PNG 2 260 341 156 64 277 235 155 64
