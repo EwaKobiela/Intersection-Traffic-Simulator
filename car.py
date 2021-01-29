@@ -1,5 +1,6 @@
 import pygame
 import os
+from traffic_light import TrafficLight
 
 CAR_L = pygame.transform.scale(pygame.image.load(os.path.join("assets", "car_left.png")), (150, 60))
 CAR_R = pygame.transform.scale(pygame.image.load(os.path.join("assets", "car_right.png")), (150, 60))
@@ -9,6 +10,9 @@ CAR_D = pygame.transform.scale(pygame.image.load(os.path.join("assets", "car_dow
 class Car:
     def __init__(self, orientation):
         self.orientation = orientation
+        self.car_img = None
+        self.x = None
+        self.y = None
         if (self.orientation == "L"):
             self.x = 10
             self.y = 345
@@ -30,15 +34,24 @@ class Car:
     def draw(self, window):
         window.blit(self.car_img, (self.x, self.y))
 
-    def move(self, vel):
-        #print("Car position: ", car.x)
-        # Left - x = 115
+    def move(self, vel, lights):
         if (self.orientation == "L"):
-            #if
-            self.x += vel
+            if (self.x + self.car_img.get_width() == 250 and lights[0].state == "red"):
+                self.x = self.x
+            else:
+                self.x += vel
         elif (self.orientation == "R"):
-            self.x -= vel
+            if (self.x == 550 and lights[1].state == "red"):
+                self.x = self.x
+            else:
+                self.x -= vel
         elif (self.orientation == "U"):
-            self.y += vel
+            if (self.y + self.car_img.get_height() == 180 and  lights[2].state == "red"):
+                self.y = self.y
+            else:
+                self.y += vel
         elif (self.orientation == "D"):
-            self.y -= vel
+            if (self.y == 450 and lights[3].state == "red"):
+                self.y = self.y
+            else:
+                self.y -= vel
