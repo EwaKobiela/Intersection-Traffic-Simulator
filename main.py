@@ -1,8 +1,19 @@
 import pygame
 import os
 import random
+import cv2 as cv
+from wincapture import get_screenshot
+import numpy as np
+from vision import Vision
+from car import Car
+from traffic_light import TrafficLight
 import time
 pygame.font.init()
+
+#############################################################################################################
+##  Intersection Traffic Simulator
+##  by Ewa Kobiela & Jan Laskowski
+#############################################################################################################
 
 #Initialize window
 pygame.font.init()
@@ -11,51 +22,31 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Intersection traffic simulator")
 
 #Load images
-CAR_L = pygame.transform.scale(pygame.image.load(os.path.join("assets", "car_left.png")), (150, 60))
-CAR_R = pygame.transform.scale(pygame.image.load(os.path.join("assets", "car_right.png")), (150, 60))
-CAR_U = pygame.transform.scale(pygame.image.load(os.path.join("assets", "car_up.png")), (60, 150))
-CAR_D = pygame.transform.scale(pygame.image.load(os.path.join("assets", "car_down.png")), (60, 150))
 BG = pygame.image.load(os.path.join("assets", "intersection.jpg"))
 
+#Load trained model (OpenCV classifier)
+cascade = cv.CascadeClassifier('cascade/cascade.xml')
+#Load vision class
+vision = Vision(None)
+#wincap = WindowCapture('')
+
 #Define/generate probabilities
-prob_L = 50
-prob_R = 20
+prob_L = 25
+prob_R = 25
 prob_U = 25
-prob_D = 5
+prob_D = 25
 
-class Car:
-    def __init__(self, orientation):
+class Road:
+    def __init__(self, orientation, state):
+        self.state = state
         self.orientation = orientation
-        if (self.orientation == "L"):
-            self.x = 10
-            self.y = 345
-            self.car_img = CAR_L
-        elif (self.orientation == "R"):
-            self.x = (800 - CAR_D.get_width() - 10)
-            self.y = 240
-            self.car_img = CAR_R
-        elif (self.orientation == "U"):
-            self.x = 320
-            self.y = 10
-            self.car_img = CAR_U
-        elif (self.orientation == "D"):
-            self.x = 430
-            self.y = (630 - CAR_D.get_height() - 10)
-            self.car_img = CAR_D
 
+    def change_lights(self, state):
+        if (state == "red"):
+            self.state = "red"
+        elif (state == "green"):
+            self.state = "green"
 
-    def draw(self, window):
-        window.blit(self.car_img, (self.x, self.y))
-
-    def move(self, vel):
-        if (self.orientation == "L"):
-            self.x += vel
-        elif (self.orientation == "R"):
-            self.x -= vel
-        elif (self.orientation == "U"):
-            self.y += vel
-        elif (self.orientation == "D"):
-            self.y -= vel
 
 def main():
     run = True
@@ -64,8 +55,16 @@ def main():
     main_font = pygame.font.SysFont("comicsans", 50)
     vel = 1 #Cars' velocity
     cars = []
+    #     = [left, right, up, down]
+    queue = [False, False, False, False]
+    car_at_crossroad = False
     history = []
     count = 400
+    light_left = TrafficLight("L")
+    light_right = TrafficLight("R")
+    light_up = TrafficLight("U")
+    light_down = TrafficLight("D")
+    lights = [light_left, light_right, light_up, light_down]
 
     def calc_probab():
         L= 0
@@ -82,9 +81,6 @@ def main():
                     U += 1
                 elif history[i] == "D":
                     D += 1
-                print("i=", i)
-            #print(history)
-            print("Orginal L: ", L, "R: ", R, "U: ", U, "D: ", D, "len: ", len(history))
             if (L==0):
                 L=0
             else:
@@ -108,20 +104,22 @@ def main():
     def draw_window():
         WIN.blit(BG, (0, 0))    #Draw background
         #draw text
-        true_probL_label = main_font.render(f"Prob L: {prob_L*0.01}", 1, (0, 0, 0))
-        true_probR_label = main_font.render(f"Prob R: {prob_R*0.01}", 1, (0, 0, 0))
-        true_probU_label = main_font.render(f"Prob U: {prob_U*0.01}", 1, (0, 0, 0))
-        true_probD_label = main_font.render(f"Prob D: {prob_D*0.01}", 1, (0, 0, 0))
-        #calc_val_label
+        #true_probL_label = main_font.render(f"Prob L: {prob_L*0.01}", 1, (0, 0, 0))
+        #true_probR_label = main_font.render(f"Prob R: {prob_R*0.01}", 1, (0, 0, 0))
+        #true_probU_label = main_font.render(f"Prob U: {prob_U*0.01}", 1, (0, 0, 0))
+        #true_probD_label = main_font.render(f"Prob D: {prob_D*0.01}", 1, (0, 0, 0))
+
+        true_probL_label = main_font.render(f"Intersection", 1, (0, 0, 0))
+        true_probR_label = main_font.render(f"Traffic", 1, (0, 0, 0))
+        true_probU_label = main_font.render(f"Simulator", 1, (0, 0, 0))
+        true_probD_label = main_font.render(f"Ewa Kobiela & Jan Laskowski", 1, (0, 0, 0))
 
         WIN.blit(true_probL_label, (10, 10))
         WIN.blit(true_probR_label, (10, true_probR_label.get_height() + 20))
         WIN.blit(true_probU_label, (10, true_probU_label.get_height() * 2 + 30))
-        WIN.blit(true_probD_label, (10, true_probD_label.get_height() * 3 + 40))
-        #WIN.blit(true_val_label, (WIDTH - level_label.get_widht() - 10, 10))
+        WIN.blit(true_probD_label, (7, true_probD_label.get_height() * 3 + 40))
 
         L, R, U, D = calc_probab()
-        print("Returned L: ", L, "R: ",R,"U: ", U, "D: ", D)
         calc_probL_label = main_font.render(f"Prob L: {round(L, 2)}", 1, (0, 0, 0))
         calc_probR_label = main_font.render(f"Prob R: {round(R, 2)}", 1, (0, 0, 0))
         calc_probU_label = main_font.render(f"Prob U: {round(U, 2)}", 1, (0, 0, 0))
@@ -136,30 +134,100 @@ def main():
         for car in cars:
             car.draw(WIN)
 
+        #Draw lights
+        light_left.draw(WIN)
+        light_right.draw(WIN)
+        light_up.draw(WIN)
+        light_down.draw(WIN)
+
         pygame.display.update() #Refresh display
 
+    def detect(rectangles):
+        for rect in rectangles:
+            # Detect cars in the middle of the crosroad
+            if (rect[1] > 180 and rect[1] < 450 and rect[0] > 250 and rect[0] < 550 and rect[2] < 100):
+                car_at_crossroad = True
+            else:
+                car_at_crossroad = False
+            # If car detected in the middle nobody else can go
+            if (car_at_crossroad == True):
+                for light in lights:
+                    light.change_to_red()
+
+            # Detect queing cars
+            if (rect[1] > 325 and rect[1] < 450 and rect[0] < 250 and rect[2] < 100):
+                queue[0] = True
+            if (rect[1] > 200 and rect[1] < 325 and rect[0] > 550 and rect[2] < 200):
+                queue[1] = True
+            if (rect[0] > 280 and rect[0] < 400 and rect[1] < 180 and rect[2] < 100):
+                queue[2] = True
+            if (rect[0] > 400 and rect[0] < 600 and rect[1] > 450 and rect[2] < 100):
+                queue[3] = True
+
+    def manage_queue(queue, lights):
+        if (queue[0] == True):
+            lights[0].change_to_green()
+            lights[1].change_to_red()
+            lights[2].change_to_red()
+            lights[3].change_to_red()
+            queue[0] = False
+        if (queue[1] == True):
+            lights[0].change_to_red()
+            lights[1].change_to_green()
+            lights[2].change_to_red()
+            lights[3].change_to_red()
+            queue[1] = False
+        if (queue[2] == True):
+            lights[0].change_to_red()
+            lights[1].change_to_red()
+            lights[2].change_to_green()
+            lights[3].change_to_red()
+            queue[2] = False
+        if (queue[3] == True):
+            lights[0].change_to_red()
+            lights[1].change_to_red()
+            lights[2].change_to_red()
+            lights[3].change_to_green()
+            queue[3] = False
 
     while run:
         clock.tick(FPS)
-        clock
+        count += 1
         draw_window()
+        screenshot = get_screenshot()
+        screenshot = np.array(screenshot)
 
-        #Triggering events
+        #Detect cars
+        rectangles = cascade.detectMultiScale(screenshot)
+        detection_image = vision.draw_rectangles(screenshot, rectangles)
+
+        detect(rectangles)
+        if (queue):
+            manage_queue(queue, lights)
+        #else:
+            #change to mose probable one
+
+        # Draw detection results in the image
+        cv.imshow("x", detection_image)
+
+        #In case of closing window
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
 
-        if (count%400 == 0):
+        #Generate new car after 400 frames
+        if (count >= 400):
             prob = ["L"]*prob_L + ["R"]*prob_R + ["U"]*prob_U + ["D"]*prob_D
             x = random.choice(prob)
-            #print("Choice: ",x)
             car = Car(x)
             cars.append(car)
             history.append(x)
+            count = 0
 
+        #Move cars
         for car in cars[:]:
-            #print("Orientation: ",car.orientation)
-            car.move(vel)
-            count += 1
+            car.move(vel, lights)
+            if (car.x > 800 or car.y > 630 or car.x <= 0 or car.y <= 0):
+                cars.remove(car)
 
 main()
